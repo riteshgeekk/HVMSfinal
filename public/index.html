@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HVMS - Visitor Registration</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--light);
+            font-size: 1.1rem;
+        }
+        
+        .card-body {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        input, select, button {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--secondary);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        input[type="file"] {
+            padding: 10px;
+            background: #f8f9fa;
+        }
+        
+        button {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+        
+        .success-message {
+            color: var(--success);
+            font-weight: 500;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .visitor-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .image-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .id-proof, .qr-code {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            background: white;
+        }
+        
+        .id-proof img, .qr-code img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+        
+        .error-message {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+            color: var(--accent);
+            display: none;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            display: none;
+        }
+        
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .visitor-info {
+                grid-template-columns: 1fr;
+            }
+            
+            .image-container {
+                flex-direction: column;
+            }
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Print-specific styles */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                display: block;
+            }
+            
+            .container {
+                max-width: 100%;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            header {
+                border-radius: 0;
+            }
+            
+            form, .loading, .error-message, footer, button {
+                display: none !important;
+            }
+            
+            #result {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            
+            .success-message {
+                color: black;
+                font-size: 1.5rem;
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            
+            .visitor-info {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-bottom: 25px;
+            }
+            
+            .info-item {
+                margin-bottom: 8px;
+            }
+            
+            .info-label {
+                color: black;
+            }
+            
+            .image-container {
+                justify-content: center;
+                margin-top: 20px;
+            }
+            
+            .id-proof, .qr-code {
+                border: 1px solid #ccc;
+                page-break-inside: avoid;
+            }
+            
+            .print-header {
+                display: block;
+                text-align: center;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #2c3e50;
+            }
+            
+            .print-footer {
+                display: block;
+                text-align: center;
+                margin-top: 30px;
+                padding-top: 15px;
+                border-top: 1px solid #ccc;
+                font-size: 0.9rem;
+                color: #666;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>HVMS</h1>
+            <p class="subtitle">Visitor Registration System</p>
+        </header>
+        
+        <div class="card-body">
+            <form id="form">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="Enter your full name" required />
+                </div>
+                
+                <div class="form-group">
+                    <label for="contact">Contact Information</label>
+                    <input type="text" id="contact" name="contact" placeholder="Phone number or email" required />
+                </div>
+                
+                <div class="form-group">
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" placeholder="Your complete address" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="purpose">Purpose of Visit</label>
+                    <input type="text" id="purpose" name="purpose" placeholder="Reason for your visit" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="patient">Select Patient</label>
+                    <select id="patient" name="patient">
+                        <option value="">-- Select Patient --</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="idProof">ID Proof Document</label>
+                    <input type="file" id="idProof" name="idProof" />
+                </div>
+                
+                <button type="submit">Register Visitor</button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+            </div>
+            
+            <div class="error-message" id="error-message"></div>
+            
+            <div id="result"></div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>HVMS Visitor Management System © 2023</p>
+    </footer>
+
+    <script>
+        const form = document.getElementById('form');
+        const resultDiv = document.getElementById('result');
+        const errorDiv = document.getElementById('error-message');
+        const loadingDiv = document.getElementById('loading');
+        const patientSelect = document.getElementById('patient');
+        
+        // Load patients on page load
+        async function loadPatients() {
+            try {
+                const res = await fetch('/api/patients');
+                const patients = await res.json();
+                
+                patients.forEach(patient => {
+                    const option = document.createElement('option');
+                    option.value = patient.PatientID;
+                    option.textContent = `${patient.Name} (Ward: ${patient.Ward})`;
+                    patientSelect.appendChild(option);
+                });
+            } catch (err) {
+                console.error('Failed to load patients:', err);
+            }
+        }
+        
+        form.addEventListener('submit', async e => {
+            e.preventDefault();
+            
+            // Hide previous results and errors
+            resultDiv.innerHTML = '';
+            errorDiv.style.display = 'none';
+            loadingDiv.style.display = 'flex';
+            
+            const formData = new FormData(form);
+            
+            try {
+                const res = await fetch('/api/visitors', { 
+                    method: 'POST', 
+                    body: formData 
+                });
+                
+                const data = await res.json();
+                
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="print-header">
+                            <h2>HVMS Visitor Registration</h2>
+                            <p>Visitor Details</p>
+                        </div>
+                        <div class="success-message">✅ Visitor Registered Successfully!</div>
+                        <div class="visitor-info">
+                            <div class="info-item">
+                                <span class="info-label">Visitor ID:</span> ${data.visitor.VisitorID}
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Name:</span> ${data.visitor.Name}
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Contact:</span> ${data.visitor.ContactNumber}
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Check-in Time:</span> ${new Date(data.visitor.CheckInTime).toLocaleString()}
+                            </div>
+                            ${data.visitor.Address ? `
+                                <div class="info-item">
+                                    <span class="info-label">Address:</span> ${data.visitor.Address}
+                                </div>
+                            ` : ''}
+                            ${data.visitor.Purpose ? `
+                                <div class="info-item">
+                                    <span class="info-label">Purpose:</span> ${data.visitor.Purpose}
+                                </div>
+                            ` : ''}
+                            ${data.visitor.PatientName ? `
+                                <div class="info-item">
+                                    <span class="info-label">Patient:</span> ${data.visitor.PatientName}
+                                </div>
+                            ` : ''}
+                            ${data.visitor.Ward ? `
+                                <div class="info-item">
+                                    <span class="info-label">Ward:</span> ${data.visitor.Ward}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="image-container">
+                            ${data.visitor.QRCode ? `
+                                <div class="qr-code">
+                                    <p class="info-label">QR Code:</p>
+                                    <img src="${data.visitor.QRCode}" alt="QR Code" />
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="print-footer">
+                            <p>Generated on ${new Date().toLocaleString()}</p>
+                        </div>
+                        <button class="btn-success" onclick="window.print()">Print Details</button>
+                    `;
+                    
+                    form.reset();
+                } else {
+                    errorDiv.textContent = data.error || 'Registration failed. Please try again.';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Network error. Please check your connection and try again.';
+                errorDiv.style.display = 'block';
+                console.error('Registration error:', err);
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+        
+        // Load patients when page loads
+        loadPatients();
+    </script>
+</body>
+</html>

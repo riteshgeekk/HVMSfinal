@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HVMS Dashboard</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --success: #2ecc71;
+            --warning: #f39c12;
+            --gray: #95a5a6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--light);
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5rem;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+        
+        .stat-card p {
+            color: var(--gray);
+            font-weight: 500;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            margin-bottom: 25px;
+        }
+        
+        .card-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-header h2 {
+            font-size: 1.4rem;
+        }
+        
+        .card-body {
+            padding: 20px;
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .status-online {
+            background: rgba(46, 204, 113, 0.2);
+            color: var(--success);
+        }
+        
+        .status-offline {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--accent);
+        }
+        
+        .status-pending {
+            background: rgba(243, 156, 18, 0.2);
+            color: var(--warning);
+        }
+        
+        .status-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        
+        .status-online .status-icon {
+            background: var(--success);
+        }
+        
+        .status-offline .status-icon {
+            background: var(--accent);
+        }
+        
+        .status-pending .status-icon {
+            background: var(--warning);
+        }
+        
+        .id-proof, .qr-code {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #eaeaea;
+        }
+        
+        .error-message {
+            background: rgba(231, 76, 60, 0.1);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .error-message i {
+            color: var(--accent);
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .success-message {
+            background: rgba(46, 204, 113, 0.1);
+            border-left: 4px solid var(--success);
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .success-message i {
+            color: var(--success);
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .last-updated {
+            text-align: right;
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 10px;
+        }
+        
+        .text-truncate {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Add to your existing CSS */
+        .btn-download {
+            background: var(--success);
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-download:hover {
+            background: #27ae60;
+            transform: translateY(-1px);
+        }
+
+        .btn-download:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        @media (max-width: 992px) {
+            .stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .card-body {
+                padding: 10px;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+                font-size: 0.9rem;
+            }
+            
+            .text-truncate {
+                max-width: 120px;
+            }
+            
+            .id-proof, .qr-code {
+                width: 60px;
+                height: 60px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            th, td {
+                padding: 6px 8px;
+                font-size: 0.8rem;
+            }
+            
+            .btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>HVMS Dashboard</h1>
+            <p class="subtitle">Visitor Management System</p>
+        </header>
+        
+        <div class="error-message" id="error-message" style="display: none;">
+            <i>⚠️</i>
+            <div id="error-text">Error message will appear here</div>
+        </div>
+        
+        <div class="success-message" id="success-message" style="display: none;">
+            <i>✅</i>
+            <div id="success-text">Success message will appear here</div>
+        </div>
+        
+        <div class="controls">
+            <div>
+                <button class="btn btn-primary" onclick="load()">Refresh Data</button>
+            </div>
+            <div class="status" id="api-status">
+                <span class="status-icon"></span>
+                <span id="status-text">Checking API connection...</span>
+            </div>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-card">
+                <h3 id="total-visitors">0</h3>
+                <p>Total Visitors</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="checked-in">0</h3>
+                <p>Currently Checked In</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="checked-out">0</h3>
+                <p>Checked Out Today</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h2>Visitor Records</h2>
+                <div class="last-updated" id="last-updated">Last updated: Never</div>
+            </div>
+            <div class="card-body">
+                <table>
+                    <thead>
+                       <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Address</th>
+                            <th>Purpose</th>
+                            <th>Patient</th>
+                            <th>Ward</th>
+                            <th>Check-In</th>
+                            <th>Check-Out</th>
+                            <th>ID Proof</th>
+                            <th>Download</th>
+                            <th>QR Code</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rows">
+                        <tr>
+                            <td colspan="13" class="loading">
+                                <div class="spinner"></div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to update status indicator
+        function updateStatus(isSuccess, message) {
+            const statusElement = document.getElementById('api-status');
+            const statusText = document.getElementById('status-text');
+            
+            if (isSuccess) {
+                statusElement.className = 'status status-online';
+                statusText.textContent = message || 'Connected to API';
+            } else {
+                statusElement.className = 'status status-offline';
+                statusText.textContent = message || 'API connection failed';
+            }
+        }
+
+        // Function to show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            const errorText = document.getElementById('error-text');
+            
+            errorText.textContent = message;
+            errorDiv.style.display = 'flex';
+            
+            // Hide error after 5 seconds
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Function to show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            const successText = document.getElementById('success-text');
+            
+            successText.textContent = message;
+            successDiv.style.display = 'flex';
+            
+            // Hide success after 5 seconds
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Function to update statistics
+        function updateStats(visitors) {
+            const total = visitors.length;
+            const checkedIn = visitors.filter(v => v.CheckInTime && !v.CheckOutTime).length;
+            const checkedOut = visitors.filter(v => v.CheckOutTime).length;
+            
+            document.getElementById('total-visitors').textContent = total;
+            document.getElementById('checked-in').textContent = checkedIn;
+            document.getElementById('checked-out').textContent = checkedOut;
+        }
+
+// Function to download ID proof using server endpoint
+async function downloadIDProof(visitorId, visitorName) {
+    try {
+        const downloadBtn = event.target;
+        const originalText = downloadBtn.textContent;
+        downloadBtn.textContent = 'Downloading...';
+        downloadBtn.disabled = true;
+
+        // Create a temporary link to trigger the download
+        const link = document.createElement('a');
+        link.href = `/api/visitors/${visitorId}/download-id`;
+        link.setAttribute('download', `id_proof_${visitorName.replace(/\s+/g, '_')}`);
+        link.setAttribute('target', '_blank'); // Open in new tab
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showSuccess('ID proof download started');
+        
+    } catch (err) {
+        console.error('Download error:', err);
+        showError('Failed to download ID proof: ' + err.message);
+    } finally {
+        const downloadBtn = event.target;
+        downloadBtn.textContent = 'Download';
+        downloadBtn.disabled = false;
+    }
+}
+        // Function to handle check-out
+        async function checkOut(visitorId) {
+            try {
+                const res = await fetch(`/api/visitors/${visitorId}/checkout`, {
+                    method: 'PATCH'
+                });
+                
+                if (res.ok) {
+                    showSuccess('Visitor checked out successfully');
+                    load(); // Refresh the data
+                } else {
+                    showError('Failed to check out visitor');
+                }
+            } catch (err) {
+                console.error('Check-out error:', err);
+                showError('Failed to check out visitor');
+            }
+        }
+        
+        // Function to format date/time
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return '';
+            
+            const date = new Date(dateTimeString);
+            return date.toLocaleString();
+        }
+        
+        // Function to handle empty values
+        function formatValue(value) {
+            return value || 'N/A';
+        }
+
+        // Main load function (with updated row generation)
+        async function load() {
+            try {
+                document.getElementById('rows').innerHTML = `
+                    <tr>
+                        <td colspan="13" class="loading">
+                            <div class="spinner"></div>
+                        </td>
+                    </tr>
+                `;
+                
+                document.getElementById('error-message').style.display = 'none';
+                
+                const res = await fetch('/api/visitors');
+                
+                if (!res.ok) {
+                    throw new Error(`API returned ${res.status} ${res.statusText}`);
+                }
+                
+                const data = await res.json();
+                updateStatus(true, `Connected to API (${data.length} visitors)`);
+                updateStats(data);
+                
+                const rows = document.getElementById('rows');
+                rows.innerHTML = '';
+                
+                if (data.length) {
+                    data.forEach(v => {
+                        const row = document.createElement('tr');
+                        
+                        row.innerHTML = `
+                            <td>${v.VisitorID}</td>
+                            <td>${formatValue(v.Name)}</td>
+                            <td>${formatValue(v.ContactNumber)}</td>
+                            <td class="text-truncate" title="${v.Address || ''}">${formatValue(v.Address)}</td>
+                            <td class="text-truncate" title="${v.Purpose || ''}">${formatValue(v.Purpose)}</td>
+                            <td>${formatValue(v.PatientName)}</td>
+                            <td>${formatValue(v.Ward)}</td>
+                            <td>${v.CheckInTime ? formatDateTime(v.CheckInTime) : '<span class="status status-pending">Not checked in</span>'}</td>
+                            <td>${v.CheckOutTime ? formatDateTime(v.CheckOutTime) : '<span class="status status-pending">Not checked out</span>'}</td>
+                            <td>${v.IDProofUrl ? `<img class="id-proof" src="${v.IDProofUrl}" alt="ID Proof"/>` : 'N/A'}</td>
+                            <td>
+                                ${v.IDProofUrl ? 
+                                    `<button class="btn-download" onclick="downloadIDProof(${v.VisitorID}, '${v.Name}')">Download</button>` : 
+                                    'N/A'
+                                }
+                            </td>
+                            <td>${v.QRCode ? `<img class="qr-code" src="${v.QRCode}" alt="QR Code"/>` : 'N/A'}</td>
+                            <td>
+                                ${v.CheckInTime && !v.CheckOutTime ? 
+                                    `<button class="btn btn-warning" onclick="checkOut(${v.VisitorID})">Check Out</button>` : 
+                                    'Completed'
+                                }
+                            </td>
+                        `;
+                        
+                        rows.appendChild(row);
+                    });
+                } else {
+                    rows.innerHTML = '<tr><td colspan="13" style="text-align: center; padding: 20px;">No visitors found</td></tr>';
+                }
+                
+                document.getElementById('last-updated').textContent = 
+                    `Last updated: ${new Date().toLocaleTimeString()}`;
+                    
+            } catch (err) {
+                console.error('Error loading data:', err);
+                updateStatus(false, 'API connection failed');
+                showError(`Failed to load data: ${err.message}. Please check your API endpoint.`);
+                
+                document.getElementById('rows').innerHTML = `
+                    <tr>
+                        <td colspan="13" style="text-align: center; padding: 20px; color: #e74c3c;">
+                            Failed to load data. Please check your API connection.
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        // Initial load
+        load();
+        
+        // Auto-refresh every 5 minutes
+        setInterval(load, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
